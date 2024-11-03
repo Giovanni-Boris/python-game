@@ -84,7 +84,22 @@ def main():
         for _ in collected:
             score -= 1
             messages.add(Message(random.choice(NEGATIVE_MESSAGES), 4000))  # Show for 2 seconds
-        # Cgit
+        # Check if the score meets or exceeds the goal
+        if score >= goal:
+            draw_text("Congratulations! You reached your goal!", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
+            pygame.display.flip()
+            pygame.time.wait(2000)  # Wait for 2 seconds before closing
+            running = False  # End the game loop
+
+        # Draw all sprites
+        all_sprites.draw(screen)
+        messages.draw(screen)
+        # Draw the score on the screen
+        draw_text(f"Score: {score}", font, (0, 0, 0), screen, 70, 30)
+
+        # Update the display
+        pygame.display.flip()
+        clock.tick(30)  # Maintain 30 frames per second
 
     # Quit pygame
     pygame.quit()
