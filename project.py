@@ -5,13 +5,13 @@ from levels import *
 from things import Player, Collectible, Enemy, Message
 from constans import *
 
+
 # Initialize pygame
 pygame.init()
 
 # Screen setup
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Financial Game - Level 1: Saving Coins")
-
 
 # Load background image
 background_image = pygame.image.load("assets/background.png")  # Replace with actual city image path
@@ -36,9 +36,6 @@ for _ in range(5):
     all_sprites.add(enemy)
     enemies.add(enemy)
 
-
-
-
 # Font for displaying text
 font = pygame.font.Font(None, 36)
 
@@ -48,10 +45,24 @@ def draw_text(text, font, color, surface, x, y):
     text_rect = text_surface.get_rect(center=(x, y))
     surface.blit(text_surface, text_rect)
 
-font_small = pygame.font.Font(None, 48)
-menu = Menu(screen, background_image, "Financial Adventure", font, font_small)
-messages = pygame.sprite.Group()
-def main():
+# Function to show the end game menu
+def show_end_game_menu(score):
+    screen.fill((255, 255, 255))
+    draw_text(f"Game Over! Your score: {score}", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2 - 50)
+    draw_text("Press SPACE to go to Level 2", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    waiting = False
+    return True
+
+def main(level):
     # Scoring variables
     score = 0
     goal = 10  # Set a goal for the score
@@ -60,8 +71,6 @@ def main():
     running = True
 
     while running:
-        if not menu.nextScreen:
-            menu.show_intro_screen()
         # Draw the background
         screen.blit(background_image, (0, 0))
 
@@ -72,28 +81,24 @@ def main():
 
         # Update player and collectibles
         all_sprites.update()  # Update all collectibles
-        messages.update()
 
         # Collision detection between player and collectibles
         collected = pygame.sprite.spritecollide(player, collectibles, dokill=True)
         for item in collected:
             score +=  1 if item.type == "Money" else 2
-            messages.add(Message(random.choice(POSITIVE_MESSAGES), 4000))  # Show for 2 seconds
 
         collected = pygame.sprite.spritecollide(player, enemies, dokill=True)
         for _ in collected:
             score -= 1
-            messages.add(Message(random.choice(NEGATIVE_MESSAGES), 4000))  # Show for 2 seconds
-        # Check if the score meets or exceeds the goal
-        if score >= goal:
-            draw_text("Congratulations! You reached your goal!", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
-            pygame.display.flip()
-            pygame.time.wait(2000)  # Wait for 2 seconds before closing
-            running = False  # End the game loop
+
+        # Check if all collectibles are collected
+        if len(collectibles) == 0:
+            if show_end_game_menu(score):
+                level_two()
+            running = False
 
         # Draw all sprites
         all_sprites.draw(screen)
-        messages.draw(screen)
         # Draw the score on the screen
         draw_text(f"Score: {score}", font, (0, 0, 0), screen, 70, 30)
 
@@ -104,4 +109,61 @@ def main():
     # Quit pygame
     pygame.quit()
 
-main()
+def level_two():
+    # Level 2 setup is similar to level 1, you can add additional complexities or differences if desired.
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Financial Game - Level 2: Investing")
+    
+    player = Player(WIDTH // 2, HEIGHT // 2)
+    all_sprites = pygame.sprite.Group()
+    collectibles = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    all_sprites.add(player)
+    
+    for _ in range(7):  # Increased number of collectibles
+        collectible = Collectible()
+        all_sprites.add(collectible)
+        collectibles.add(collectible)
+    for _ in range(7):  # Increased number of enemies
+        enemy = Enemy(player)
+        all_sprites.add(enemy)
+        enemies.add(enemy)
+    
+    score = 0
+    goal = 15  # New goal for level 2
+    
+    clock = pygame.time.Clock()
+    running = True
+    
+    while running:
+        screen.blit(background_image, (0, 0))
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        all_sprites.update()
+        collected = pygame.sprite.spritecollide(player, collectibles, dokill=True)
+        for item in collected:
+            score += 1 if item.type == "Money" else 2
+
+        collected = pygame.sprite.spritecollide(player, enemies, dokill=True)
+        for _ in collected:
+            score -= 1
+
+        if len(collectibles) == 0:
+            draw_text("Congratulations! You completed Level 2!", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            running = False
+
+        all_sprites.draw(screen)
+        draw_text(f"Score: {score}", font, (0, 0, 0), screen, 70, 30)
+        
+        pygame.display.flip()
+        clock.tick(30)
+    
+    pygame.quit()
+
+main(1)
+
