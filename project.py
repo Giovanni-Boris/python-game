@@ -5,7 +5,6 @@ from levels import *
 from things import Player, Collectible, Enemy, Message
 from constans import *
 
-
 # Initialize pygame
 pygame.init()
 
@@ -16,6 +15,18 @@ pygame.display.set_caption("Financial Game - Level 1: Saving Coins")
 # Load background image
 background_image = pygame.image.load("assets/background.png")  # Replace with actual city image path
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
+# ----------------------------------- [Sonidos y Música]
+# Load sound effects
+coin_sound = pygame.mixer.Sound("assets/coin.wav")  # Sonido al recoger dinero
+investment_sound = pygame.mixer.Sound("assets/investment.wav")  # Sonido al realizar una inversión
+failure_sound = pygame.mixer.Sound("assets/failure.wav")  # Sonido al recibir un golpe de un enemigo
+level_up_sound = pygame.mixer.Sound("assets/level_up.flac")  # Sonido al pasar de nivel
+
+# Load background music
+pygame.mixer.music.load("assets/background_music.wav")  # Música de fondo para el juego
+pygame.mixer.music.set_volume(0.5)  # Volumen de la música
+pygame.mixer.music.play(-1)  # Reproduce en bucle
 
 # Initialize player and sprite groups
 player = Player(WIDTH // 2, HEIGHT // 2)  # Start the player in the center of the screen
@@ -51,6 +62,10 @@ def show_end_game_menu(score):
     draw_text(f"Game Over! Your score: {score}", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2 - 50)
     draw_text("Press SPACE to go to Level 2", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
     pygame.display.flip()
+    
+    # ----------------------------------- [Sonido Final de Nivel]
+    level_up_sound.play()  # Reproduce el sonido de cambio de nivel
+
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -65,7 +80,7 @@ def show_end_game_menu(score):
 def main(level):
     # Scoring variables
     score = 0
-    goal = 10  # Set a goal for the score
+    goal = 5  # Set a goal for the score
     # Game loop
     clock = pygame.time.Clock()
     running = True
@@ -82,14 +97,18 @@ def main(level):
         # Update player and collectibles
         all_sprites.update()  # Update all collectibles
 
+        # ----------------------------------- [Colisión con Items y Efectos de Sonido]
         # Collision detection between player and collectibles
         collected = pygame.sprite.spritecollide(player, collectibles, dokill=True)
         for item in collected:
-            score +=  1 if item.type == "Money" else 2
+            score += 1 if item.type == "Money" else 2
+            coin_sound.play()  # Reproduce el sonido al recolectar dinero
 
+        # Collision with enemies
         collected = pygame.sprite.spritecollide(player, enemies, dokill=True)
         for _ in collected:
             score -= 1
+            failure_sound.play()  # Sonido al recibir golpe de un enemigo
 
         # Check if all collectibles are collected
         if len(collectibles) == 0:
@@ -143,13 +162,17 @@ def level_two():
                 running = False
 
         all_sprites.update()
+        
+        # Collision with collectibles and play sound
         collected = pygame.sprite.spritecollide(player, collectibles, dokill=True)
         for item in collected:
             score += 1 if item.type == "Money" else 2
+            investment_sound.play()  # Sonido al realizar inversión
 
         collected = pygame.sprite.spritecollide(player, enemies, dokill=True)
         for _ in collected:
             score -= 1
+            failure_sound.play()
 
         if len(collectibles) == 0:
             draw_text("Congratulations! You completed Level 2!", font, (0, 0, 0), screen, WIDTH // 2, HEIGHT // 2)
@@ -166,4 +189,3 @@ def level_two():
     pygame.quit()
 
 main(1)
-
