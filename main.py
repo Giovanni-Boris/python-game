@@ -128,11 +128,20 @@ def main():
     level_2_data = {
         "collectibles": 7,
         "enemies": 7,
-        "next": False,
+        "next": True,
+    }
+
+    level_3_data = {
+        "collectibles": 10,
+        "enemies": 10,
+        "next": True,
     }
 
     def level_two():
-        run_level(screen, assets, level_2_data, lambda: None)
+        run_level(screen, assets, level_2_data, level_three)
+
+    def level_three():
+        run_level(screen, assets, level_3_data, lambda: None)
 
     run_level(screen, assets, level_1_data, level_two)
 
