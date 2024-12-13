@@ -72,6 +72,7 @@ def run_level(screen, assets, level_data, next_level_callback):
         enemies.add(enemy)
 
     font = pygame.font.Font(None, 36)
+    messages = pygame.sprite.Group()
     score = 0
     clock = pygame.time.Clock()
     running = True
@@ -84,16 +85,19 @@ def run_level(screen, assets, level_data, next_level_callback):
                 running = False
 
         all_sprites.update()
+        messages.update()
 
         collected = pygame.sprite.spritecollide(player, collectibles, dokill=True)
         for item in collected:
             score += 1 if item.type == "Money" else 2
             assets["sounds"]["coin"].play()
+            messages.add(Message(random.choice(POSITIVE_MESSAGES), 2000))
 
         collected = pygame.sprite.spritecollide(player, enemies, dokill=True)
         for _ in collected:
             score -= 1
             assets["sounds"]["failure"].play()
+            messages.add(Message(random.choice(NEGATIVE_MESSAGES), 2000))
 
         if len(collectibles) == 0:
             if level_data["next"]:
@@ -102,6 +106,7 @@ def run_level(screen, assets, level_data, next_level_callback):
             running = False
 
         all_sprites.draw(screen)
+        messages.draw(screen)
         draw_text(f"Score: {score}", font, (0, 0, 0), screen, 70, 30)
         pygame.display.flip()
         clock.tick(30)
