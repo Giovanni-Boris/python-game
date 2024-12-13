@@ -2,6 +2,9 @@ import pygame as pg
 from constans import *  # Assuming you have constants defined in a separate file
 
 class Menu:
+    start_button_color = (0, 128, 0)
+    quit_button_color = (128, 0, 0)
+
     def __init__(self, screen, background_image, title, font, font_small):
         self.screen = screen
         self.background_image = background_image
@@ -32,8 +35,8 @@ class Menu:
             self.screen.blit(self.background_image, (0, 0))  # Draw background
 
             # Define button dimensions and positions
-            start_button_rect = self.draw_button("Start Game", (0, 128, 0), WIDTH // 2, HEIGHT // 2 + 50, 200, 50)
-            quit_button_rect = self.draw_button("Quit", (128, 0, 0), WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
+            start_button_rect = self.draw_button("Start Game", self.start_button_color, WIDTH // 2, HEIGHT // 2 + 50, 200, 50)
+            quit_button_rect = self.draw_button("Quit", self.quit_button_color, WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -51,25 +54,27 @@ class Menu:
                 mouse_pos = pg.mouse.get_pos()
                 if start_button_rect.collidepoint(mouse_pos):
                     # Change button color on hover
-                    start_button_rect = self.draw_button("Start Game", (0, 255, 0), WIDTH // 2, HEIGHT // 2 + 50, 200,
-                                                         50)
+                    self.start_button_color = (0, 255, 0)
+                    start_button_rect = self.draw_button("Start Game", self.start_button_color, WIDTH // 2, HEIGHT // 2 + 50, 200, 50)
                     if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button
                         self.nextScreen = True
                         return True  # Return true to start the game
                 else:
                     # Draw the button with the default color
-                    start_button_rect = self.draw_button("Start Game", (0, 128, 0), WIDTH // 2, HEIGHT // 2 + 50, 200,
-                                                         50)
+                    self.start_button_color = (0, 128, 0)
+                    start_button_rect = self.draw_button("Start Game", self.start_button_color, WIDTH // 2, HEIGHT // 2 + 50, 200, 50)
 
                 if quit_button_rect.collidepoint(mouse_pos):
                     # Change button color on hover
-                    quit_button_rect = self.draw_button("Quit", (255, 0, 0), WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
+                    self.quit_button_color = (255, 0, 0)
+                    quit_button_rect = self.draw_button("Quit", self.quit_button_color, WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
                     if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button
                         pg.quit()
                         return False  # Return false to indicate quitting
                 else:
                     # Draw the button with the default color
-                    quit_button_rect = self.draw_button("Quit", (128, 0, 0), WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
+                    self.quit_button_color = (128, 0, 0)
+                    quit_button_rect = self.draw_button("Quit", self.quit_button_color, WIDTH // 2, HEIGHT // 2 + 100, 200, 50)
 
             # Draw the title
             self.draw_text(self.title, self.font, (0, 0, 0), WIDTH // 2, HEIGHT // 2 - 50)
